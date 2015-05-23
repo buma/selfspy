@@ -172,13 +172,18 @@ class Sniffer:
                 while cur_class is None:
                     if type(cur_window) is int:
                         return None, None, None
+                    window_parent = cur_window.query_tree().parent
 
                     cur_name = cur_window.get_wm_name()
                     cur_class = cur_window.get_wm_class()
 
                     if cur_class:
                         cur_class = cur_class[1]
-                    if not cur_class:
+                    # All Java programs have class FocusProxy and you need to
+                    # look into their parent to get actuall program name and window title
+                    if not cur_class or (cur_class == 'FocusProxy' and window_parent):
+                        # This needs to be set to None so that while loop runs
+                        cur_class = None
                         cur_window = cur_window.query_tree().parent
             except XError:
                 i += 1
